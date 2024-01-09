@@ -1,0 +1,10 @@
+**/.env
+**/.git
+**/.gitignore
+**/.ssh
+docker-compose.yml
+Dockerfile
+docs/
+README.md
+README.md
+schema.sql
