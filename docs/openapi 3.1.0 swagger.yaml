@@ -1,0 +1,188 @@
+openapi: 3.1.0
+info:
+  title: Invest Big
+  description: |-
+    Описание
+  version: 1.0.0
+tags:
+  - name: project
+    description: Всё, что связано с проектами
+paths:
+  /project:
+    post:
+      tags:
+        - project
+      summary: Создать новый проект
+      description: Создать новый проект
+      operationId: createProject
+      requestBody:
+        description: Новый проект для создания
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '405':
+          description: Invalid input
+    put:
+      tags:
+        - project
+      summary: Изменить существующий проект
+      description: Изменить существующий проект
+      operationId: updateProject
+      requestBody:
+        description: Новый проект для создания
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Project not found
+  /project/{projectId}:
+    get:
+      tags:
+        - project
+      summary: Просмотр существующего проекта
+      description: Просмотр существующего проекта
+      operationId: getProjectById
+      parameters:
+        - name: projectId
+          in: path
+          description: Project id to delete
+          required: true
+          schema:
+            $ref: '#/components/schemas/Project/properties/id'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Project not found
+    delete:
+      tags:
+        - project
+      summary: Удалить существующий проекта
+      description: Удалить существующий проекта
+      operationId: deleteProjectById
+      parameters:
+        - name: projectId
+          in: path
+          description: Project id to delete
+          required: true
+          schema:
+            $ref: '#/components/schemas/Project/properties/id'
+      responses:
+        '200':
+          description: Project deleted
+        '400':
+          description: Invalid project value
+    patch:
+      tags:
+        - project
+      summary: Изменить статус проекта
+      description: Изменить статус проекта
+      operationId: patchProjectState
+      parameters:
+        - name: projectId
+          in: path
+          description: Project id to patch
+          required: true
+          schema:
+            $ref: '#/components/schemas/Project/properties/id'
+        - name: projectState
+          in: query
+          description: Новый статус проекта
+          required: true
+          schema:
+            $ref: '#/components/schemas/Project/properties/state'
+components:
+  schemas:
+    Project:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        ownerId:
+          type: string
+          format: uuid
+        addressId:
+          type: string
+          format: uuid
+        industryId:
+          type: string
+          format: uuid
+        name:
+          description: Название проекта
+          type: string
+        state:
+          description: Статус проекта
+          type: array
+          enum:
+            - APPLICATION
+            - DELETED
+            - ENDED
+            - FREEZE
+            - ON_EDIT
+            - IN_ARCHIVE
+            - PROJECT_IN_WORK
+            - PROJECT_IN_COMISSION
+            - PROJECT_ON_SUPPORT
+        applicationOwnerAmount:
+          description: Собственная сумма. Заполняет сотрудник. Источник Клиент. По звонку или по заявлению
+          type: number
+          format: double
+          minimum: 0
+        applicationSupportAmount:
+          description: Запрашиваемая сумма. Заполняет сотрудник. Источник Клиент. По звонку или по заявлению
+          type: number
+          format: double
+          minimum: 0
+        workPlaceCount:
+          description: Количество рабочих мест. Заполняет сотрудник. Источник Клиент. По звонку или по заявлению
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 1000
+        taxAmount:
+          description: Налоги, отчисляемые в бюджет. Заполняет сотрудник. Источник Клиент. По звонку или по заявлению
+          type: integer
+          format: int64
+          minimum: 0
+        desk:
+          description: Описание проекта. Заполняет сотрудник. Источник Клиент. По звонку или по заявлению
+          type: string
+  requestBodies:
+    Project:
+      description: 
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Project'
