@@ -3,6 +3,13 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+from src.addresses.models import address  # noqa: F401
+from src.config import settings
+from src.decisions.models import decision  # noqa: F401
+from src.models import Base
+from src.projects.models import project  # noqa: F401
+from src.supports.models import support  # noqa: F401
+from src.users.models import user  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -17,12 +24,25 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+DATABASE_URL = str(settings.DATABASE_URL)
+
+db_driver = settings.DATABASE_URL.scheme
+db_driver_parts = db_driver.split("+")
+if len(db_driver_parts) > 1:  # e.g. postgresql+asyncpg
+    sync_scheme = db_driver_parts[0].strip()
+    DATABASE_URL = DATABASE_URL.replace(  # replace with sync driver
+        db_driver, sync_scheme
+    )
+
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
+config.compare_type = True
+config.compare_server_default = True
 
 
 def run_migrations_offline() -> None:
