@@ -52,7 +52,7 @@ Table user {
   '''
 }
 
-Table district_id {
+Table district {
   id int [pk]
   name text [note: 'Наименование района']
   Note: '''
@@ -70,10 +70,9 @@ Table city {
 
 Table project {
   id int [pk]
-  user_id int [unique]
-  owner_id int [unique]
-  address_id int [unique]
-  industry_id int [unique]
+  owner_id int
+  address_id int
+  industry_id int
   name text [note: 'Название проекта']
   application_own_amount decimal [note: 'Собственная сумма. Заполняет сотрудник. Источник Клиент. По звонку или по заявлению']
   application_support_amount decimal [note: 'Запрашиваемая сумма. Заполняет сотрудник. Источник Клиент. По звонку или по заявлению']
@@ -86,9 +85,18 @@ Table project {
   '''
 }
 
+Table user_project {
+  id int [pk]
+  user_id int
+  project_id int
+  Note: '''
+    Связь пользователей с проектами
+  '''
+}
+
 Table business_org {
   id int [pk]
-  address_id int [unique]
+  address_id int
   name text [note: 'Полное наименование']
   name_short text [note: 'Сокращенное наименование']
   inn text [note: 'ИНН']
@@ -100,7 +108,7 @@ Table business_org {
 
 Table business_man {
   id int [pk]
-  address_id int [unique]
+  address_id int
   last_name text [note: 'Фамилия']
   first_name text [note: 'Имя']
   middle_name text [note: 'Отчество']
@@ -113,8 +121,8 @@ Table business_man {
 
 Table owner {
   id int [pk]
-  business_org_id int [unique]
-  business_man_id int [unique]
+  business_org_id int
+  business_man_id int
   Note: '''
     Сущность владельца проектом
   '''
@@ -122,7 +130,7 @@ Table owner {
 
 Table owner_contact {
   id int [pk]
-  owner_id int [unique]
+  owner_id int
   Note: '''
     Контакты владельца проектом
   '''
@@ -130,14 +138,14 @@ Table owner_contact {
 
 Table support {
   id int [pk]
-  project_id int [unique, note: 'ID проекта к которому относится поддержка']
-  support_programm_id int [unique, note: 'ID государственной программы, по которой выделяется поддержка']
-  support_org_id int [unique, note: 'ID государственного органа, выделяющего поддержку']
+  project_id int [note: 'ID проекта к которому относится поддержка']
+  support_programm_id int [note: 'ID государственной программы, по которой выделяется поддержка']
+  support_org_id int [note: 'ID государственного органа, выделяющего поддержку']
   date_start date [note: 'Дата начала выделения поддержки']
   date_end date [note: 'Дата окончания выделения поддержки']
   type_code support_type [note: 'Вид поддержки']
   amount decimal [note: 'Размер поддержки']
-  unit unit_type
+  unit unit_type [note: 'Единицы измерения']
   desc text [note: 'Описание']
   Note: '''
     Поддержка по проекту
@@ -164,8 +172,8 @@ Table support_org {
 
 Table address {
   id int [pk]
-  district_id int [unique]
-  city_id int [unique]
+  district int
+  city_id int
   post_code text [note: "Почтовый индекс"]
   address text [note: "Улица, дом, квартира, офис"]
   Note: '''
@@ -175,7 +183,7 @@ Table address {
 
 Table decision {
   id int [pk]
-  project_id int [unique]
+  support_id int
   decision_type decision_type [note: "Вид решения. Заполняет сотрудник. Источник протокол заседания. По итогам проведения комиссии'"]
   decision_date date [note: "Дата создания решения. Заполняет сотрудник. Источник протокол заседания. По итогам проведения комиссии"]
   protocol_number text [note: "Номер протокола. Заполняет сотрудник. Источник протокол заседания. По итогам проведения комиссии"]
@@ -193,16 +201,15 @@ Table industry {
   '''
 }
 
-
 Ref: "project"."owner_id" > "owner"."id"
 
 Ref: "project"."id" < "support"."project_id"
 
-Ref: "owner_contact"."owner_id" < "owner"."id"
+Ref: "owner_contact"."owner_id" > "owner"."id"
 
 Ref: "project"."address_id" > "address"."id"
 
-Ref: "owner"."business_org_id" < "business_org"."id"
+Ref: "owner"."business_org_id" > "business_org"."id"
 
 Ref: "business_man"."id" < "owner"."business_man_id"
 
@@ -210,16 +217,18 @@ Ref: "support"."support_org_id" > "support_org"."id"
 
 Ref: "support_programm"."id" < "support"."support_programm_id"
 
-Ref: "decision"."project_id" > "support"."project_id"
+Ref: "decision"."support_id" > "support"."id"
 
 Ref: "project"."industry_id" > "industry"."id"
 
-Ref: "address"."district_id" < "district_id"."id"
+Ref: "address"."district" > "district"."id"
 
-Ref: "address"."city_id" < "city"."id"
+Ref: "address"."city_id" > "city"."id"
 
-Ref: "business_man"."address_id" < "address"."id"
+Ref: "business_man"."address_id" > "address"."id"
 
-Ref: "business_org"."address_id" < "address"."id"
+Ref: "business_org"."address_id" > "address"."id"
 
-Ref: "project"."user_id" > "user"."id"
+Ref: "user"."id" < "user_project"."user_id"
+  
+Ref: "project"."id" < "user_project"."project_id"

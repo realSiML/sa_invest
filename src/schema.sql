@@ -65,10 +65,9 @@ CREATE TABLE "city" (
 
 CREATE TABLE "project" (
   "id" int PRIMARY KEY,
-  "user_id" int UNIQUE,
-  "owner_id" int UNIQUE,
-  "address_id" int UNIQUE,
-  "industry_id" int UNIQUE,
+  "owner_id" int,
+  "address_id" int,
+  "industry_id" int,
   "name" text,
   "application_own_amount" decimal,
   "application_support_amount" decimal,
@@ -78,9 +77,15 @@ CREATE TABLE "project" (
   "state" project_state_type
 );
 
+CREATE TABLE "user_project" (
+  "id" int PRIMARY KEY,
+  "user_id" int,
+  "project_id" int
+);
+
 CREATE TABLE "business_org" (
   "id" int PRIMARY KEY,
-  "address_id" int UNIQUE,
+  "address_id" int,
   "name" text,
   "name_short" text,
   "inn" text,
@@ -89,7 +94,7 @@ CREATE TABLE "business_org" (
 
 CREATE TABLE "business_man" (
   "id" int PRIMARY KEY,
-  "address_id" int UNIQUE,
+  "address_id" int,
   "last_name" text,
   "first_name" text,
   "middle_name" text,
@@ -99,22 +104,22 @@ CREATE TABLE "business_man" (
 
 CREATE TABLE "owner" (
   "id" int PRIMARY KEY,
-  "business_org_id" int UNIQUE,
-  "business_man_id" int UNIQUE
+  "business_org_id" int,
+  "business_man_id" int
 );
 
 CREATE TABLE "owner_contact" (
   "id" int PRIMARY KEY,
-  "owner_id" int UNIQUE,
+  "owner_id" int,
   "phone_no" text,
   "email" text
 );
 
 CREATE TABLE "support" (
   "id" int PRIMARY KEY,
-  "project_id" int UNIQUE,
-  "support_programm_id" int UNIQUE,
-  "support_org_id" int UNIQUE,
+  "project_id" int,
+  "support_programm_id" int,
+  "support_org_id" int,
   "date_start" date,
   "date_end" date,
   "type_code" support_type,
@@ -137,15 +142,15 @@ CREATE TABLE "support_org" (
 
 CREATE TABLE "address" (
   "id" int PRIMARY KEY,
-  "district_id" int UNIQUE,
-  "city_id" int UNIQUE,
+  "district_id" int,
+  "city_id" int,
   "post_code" text,
   "address" text
 );
 
 CREATE TABLE "decision" (
   "id" int PRIMARY KEY,
-  "project_id" int UNIQUE,
+  "support_id" int,
   "decision_type" decision_type,
   "decision_date" date,
   "protocol_number" text,
@@ -193,6 +198,8 @@ COMMENT ON COLUMN "project"."description" IS 'Описание проекта. �
 
 COMMENT ON COLUMN "project"."state" IS 'Состояние проекта';
 
+COMMENT ON TABLE "user_project" IS 'Связь пользователей системы с проектами';
+
 COMMENT ON TABLE "business_org" IS 'Клиент - юридическое лицо';
 
 COMMENT ON COLUMN "business_org"."name" IS 'Полное наименование';
@@ -239,6 +246,8 @@ COMMENT ON COLUMN "support"."type_code" IS 'Вид поддержки';
 
 COMMENT ON COLUMN "support"."amount" IS 'Размер поддержки';
 
+COMMENT ON COLUMN "support"."unit" IS 'Единицы измерения';
+
 COMMENT ON COLUMN "support"."desc" IS 'Описание';
 
 COMMENT ON TABLE "support_programm" IS 'Справочник. Федеральные, региональные и муниципальные программы поддержки';
@@ -275,11 +284,11 @@ ALTER TABLE "project" ADD FOREIGN KEY ("owner_id") REFERENCES "owner" ("id");
 
 ALTER TABLE "support" ADD FOREIGN KEY ("project_id") REFERENCES "project" ("id");
 
-ALTER TABLE "owner" ADD FOREIGN KEY ("id") REFERENCES "owner_contact" ("owner_id");
+ALTER TABLE "owner_contact" ADD FOREIGN KEY ("owner_id") REFERENCES "owner" ("id");
 
 ALTER TABLE "project" ADD FOREIGN KEY ("address_id") REFERENCES "address" ("id");
 
-ALTER TABLE "business_org" ADD FOREIGN KEY ("id") REFERENCES "owner" ("business_org_id");
+ALTER TABLE "owner" ADD FOREIGN KEY ("business_org_id") REFERENCES "business_org" ("id");
 
 ALTER TABLE "owner" ADD FOREIGN KEY ("business_man_id") REFERENCES "business_man" ("id");
 
@@ -287,16 +296,18 @@ ALTER TABLE "support" ADD FOREIGN KEY ("support_org_id") REFERENCES "support_org
 
 ALTER TABLE "support" ADD FOREIGN KEY ("support_programm_id") REFERENCES "support_programm" ("id");
 
-ALTER TABLE "decision" ADD FOREIGN KEY ("project_id") REFERENCES "support" ("project_id");
+ALTER TABLE "decision" ADD FOREIGN KEY ("support_id") REFERENCES "support" ("id");
 
 ALTER TABLE "project" ADD FOREIGN KEY ("industry_id") REFERENCES "industry" ("id");
 
-ALTER TABLE "district_id" ADD FOREIGN KEY ("id") REFERENCES "address" ("district_id");
+ALTER TABLE "address" ADD FOREIGN KEY ("district") REFERENCES "district" ("id");
 
-ALTER TABLE "city" ADD FOREIGN KEY ("id") REFERENCES "address" ("city_id");
+ALTER TABLE "address" ADD FOREIGN KEY ("city_id") REFERENCES "city" ("id");
 
-ALTER TABLE "address" ADD FOREIGN KEY ("id") REFERENCES "business_man" ("address_id");
+ALTER TABLE "business_man" ADD FOREIGN KEY ("address_id") REFERENCES "address" ("id");
 
-ALTER TABLE "address" ADD FOREIGN KEY ("id") REFERENCES "business_org" ("address_id");
+ALTER TABLE "business_org" ADD FOREIGN KEY ("address_id") REFERENCES "address" ("id");
 
-ALTER TABLE "project" ADD FOREIGN KEY ("user_id") REFERENCES "user" ("id");
+ALTER TABLE "user_project" ADD FOREIGN KEY ("user_id") REFERENCES "user" ("id");
+
+ALTER TABLE "user_project" ADD FOREIGN KEY ("project_id") REFERENCES "project" ("id");
