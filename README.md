@@ -46,7 +46,7 @@
 
 ### FastAPI
 
-- https://github.com/zhanymkanov/fastapi-best-practices#3-use-dependencies-for-data-validation-vs-db
+- https://github.com/zhanymkanov/fastapi-best-practices
 - https://github.com/zhanymkanov/fastapi_production_template
 - https://github.com/zhanymkanov/fastapi-best-practices/issues/4
 
