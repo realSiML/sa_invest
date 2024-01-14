@@ -7,7 +7,7 @@ WORKDIR /app
 
 RUN apt update && apt upgrade -y --no-install-recommends
 
-COPY ./src/requirements.txt .
+COPY requirements.txt .
 
 RUN pip install pip --upgrade && \
     pip install --no-cache-dir -r requirements.txt \
